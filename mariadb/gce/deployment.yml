@@ -1,0 +1,47 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: livezilla-mariadb
+spec:
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: livezilla-mariadb
+    spec:
+      volumes:
+      - name: livezilla-mariadb-volume
+        persistentVolumeClaim:
+          claimName: livezilla-mariadb
+      containers:
+      - image: eu.gcr.io/natmus-support-platform/livezilla-mariadb:1.0.0
+        imagePullPolicy: Always
+        name: mariadb
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: nsp-secrets
+              key: mysql-root-password
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: nsp-secrets
+              key: mysql-password
+        - name: MYSQL_DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: nsp-secrets
+              key: mysql-database
+        - name: MYSQL_USER
+          valueFrom:
+            secretKeyRef:
+              name: nsp-secrets
+              key: mysql-user
+        ports:
+        - containerPort: 3306
+          name: mysql
+        volumeMounts:
+        - name: livezilla-mariadb-volume
+          mountPath: /var/lib/mysql

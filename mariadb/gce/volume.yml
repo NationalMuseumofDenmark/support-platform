@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: livezilla-mariadb
+spec:
+  capacity:
+    storage: 200Gi
+  accessModes:
+    - ReadWriteOnce
+  gcePersistentDisk:
+    pdName: livezilla-mariadb
+    fsType: ext4

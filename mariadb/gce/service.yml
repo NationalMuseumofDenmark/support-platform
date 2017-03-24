@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: livezilla-mariadb
+  labels:
+    app: nsp
+spec:
+  ports:
+    - port: 3306
+  selector:
+    app: livezilla-mariadb
