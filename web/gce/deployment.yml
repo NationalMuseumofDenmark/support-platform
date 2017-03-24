@@ -1,0 +1,72 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: livezilla-web
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: livezilla-web
+    spec:
+      volumes:
+      - name: livezilla-web
+        persistentVolumeClaim:
+          claimName: livezilla-web
+      containers:
+      - name: livezilla-web
+        image: eu.gcr.io/natmus-support-platform/livezilla-web:1.1.0
+        imagePullPolicy: Always
+        args: ["--conf", "/etc/Caddyfile", "--log", "stdout"]
+        ports:
+        - name: caddy-http
+          containerPort: 80
+        - name: caddy-https
+          containerPort: 443
+        livenessProbe:
+          httpGet:
+            path: /
+            port: caddy-http
+          initialDelaySeconds: 360
+          timeoutSeconds: 10
+        volumeMounts:
+        - name: livezilla-web
+          mountPath: /srv/livezilla/uploads
+          subPath: uploads
+        - name: livezilla-web
+          mountPath: /srv/livezilla/stats
+          subPath: stats
+        - name: livezilla-web
+          mountPath: /root/.caddy
+          subPath: certbot
+        env:
+          - name: DB_HOST
+            value: livezilla-mariadb
+
+          - name: PHP_ENV
+            valueFrom:
+              secretKeyRef:
+                name: nsp-secrets
+                key: php-env
+
+          - name: MYSQL_DATABASE
+            valueFrom:
+              secretKeyRef:
+                name: nsp-secrets
+                key: mysql-database
+          - name: MYSQL_USER
+            valueFrom:
+              secretKeyRef:
+                name: nsp-secrets
+                key: mysql-user
+          - name: MYSQL_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: nsp-secrets
+                key: mysql-password
+
+          - name: LIVEZILLA_SERVER_ID
+            valueFrom:
+              secretKeyRef:
+                name: nsp-secrets
+                key: livezilla-server-id

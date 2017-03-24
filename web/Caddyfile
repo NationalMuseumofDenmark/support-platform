@@ -1,0 +1,17 @@
+0.0.0.0:80
+root /srv/livezilla
+
+log stdout
+errors stdout
+
+gzip
+header / Strict-Transport-Security "max-age=15768000"
+header / X-XSS-Protection "1; mode=block"
+header / X-Frame-Options "SAMEORIGIN"
+header / X-Content-Type-Options "nosniff"
+header / Referrer-Policy "same-origin"
+
+fastcgi / 127.0.0.1:9000 php {
+}
+
+startup php-fpm7
